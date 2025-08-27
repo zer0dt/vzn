@@ -1,0 +1,16 @@
+{
+  "name": "vzn",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "vzn.js",
+  "scripts": {
+    "start": "node vzn.js"
+  },
+  "dependencies": {
+    "@gorillapool/js-junglebus": "^0.4.4",
+    "@supabase/supabase-js": "^2.45.4",
+    "dotenv": "^16.3.1"
+  }
+}
+
