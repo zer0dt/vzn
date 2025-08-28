@@ -1,10 +1,10 @@
-# LLM-21 Mint Indexer
+# LRC-20 Mint Indexer
 
-A Node.js application that scans the Bitcoin blockchain for LLM-21 protocol mint transactions and indexes them in a Supabase database.
+A Node.js application that scans the Bitcoin blockchain for LRC-20 protocol mint transactions and indexes them in a Supabase database.
 
 ## What It Does
 
-This indexer monitors Bitcoin transactions in real-time using JungleBus and identifies specific "Lock-Like-Mint" transactions that follow the LLM-21 protocol. When it finds a valid mint, it saves the transaction details to a database.
+This indexer monitors Bitcoin transactions in real-time using JungleBus and identifies specific "Lock-Like-Mint" transactions that follow the LRC-20 protocol. When it finds a valid mint, it saves the transaction details to a database.
 
 ## Deploy Inscription Format
 
@@ -12,7 +12,7 @@ The indexer starts by fetching the deploy inscription (token configuration) to u
 
 ```json
 {
-  "p": "llm-21",
+  "p": "LRC-20",
   "tick": "$VZN",
   "op": "deploy",
   "lim": 1000,
@@ -23,7 +23,7 @@ The indexer starts by fetching the deploy inscription (token configuration) to u
 ```
 
 **Required fields:**
-- `p`: Protocol identifier (must be "llm-21")
+- `p`: Protocol identifier (must be "LRC-20")
 - `op`: Operation type (must be "deploy") 
 - `tick`: Token ticker symbol (e.g., "$VZN")
 - `sats`: Minimum satoshis required to be locked (e.g., 10,000,000 sats)
@@ -80,12 +80,12 @@ The indexer looks for transactions with at least 3 outputs where the first 3 fol
 
 - **Output 0**: A time-locked Bitcoin amount (must meet minimum lock requirements)
 - **Output 1**: A "like" action with context "tx" and a valid app name
-- **Output 2**: A 1-satoshi output containing LLM-21 mint inscription data
+- **Output 2**: A 1-satoshi output containing LRC-20 mint inscription data
 
-The transaction can have additional outputs beyond these 3, but only the first 3 are validated for the LLM-21 mint pattern.
+The transaction can have additional outputs beyond these 3, but only the first 3 are validated for the LRC-20 mint pattern.
 
 ### 2. **Protocol Requirements**
-- Must use the "llm-21" protocol
+- Must use the "LRC-20" protocol
 - Must have a valid token ID
 - Mint amount must be ≤ 1000
 - Lock requirements must match deployment configuration
@@ -115,12 +115,12 @@ await client.Subscribe(
 
 ### **Filtering Process**
 - JungleBus pre-filters transactions to only include those with bsocial like data
-- The indexer then validates each transaction against LLM-21 mint requirements
+- The indexer then validates each transaction against LRC-20 mint requirements
 
 ### **Validation Steps**
 1. **Output 0**: Checks lock requirements (amount, duration)
 2. **Output 1**: Confirms like data structure (`type: "like"`, `context: "tx"`, valid app)
-3. **Output 2**: Validates LLM-21 mint inscription data
+3. **Output 2**: Validates LRC-20 mint inscription data
 
 ### Deep dive: how `vzn.js` checks each output via GorillaPool
 
@@ -215,13 +215,13 @@ const originJson = output2?.origin?.data?.insc?.json;
 if (!originJson) return null;
 
 if (originJson.op !== "mint") return null;
-if (originJson.p !== "llm-21") return null;
+if (originJson.p !== "LRC-20") return null;
 if (originJson.id !== targetId) return null;
 if (typeof originJson.amt !== "number" || originJson.amt > 1000) return null;
 ```
 
 - Must be exactly 1 sat output.
-- The inscription’s JSON must match the LLM-21 mint schema and the target token id.
+- The inscription’s JSON must match the LRC-20 mint schema and the target token id.
 - Caps `amt` at 1000 per mint.
 
 #### 6) Saved fields (what we persist)
@@ -298,7 +298,7 @@ Transaction ID: abc123...
   Liked Transaction: def456...
   Like App: MyApp
 🪙 MINT INFO:
-  Protocol: llm-21
+  Protocol: LRC-20
   Ticker: $VZN
   Amount Minted: 1000
 ```
@@ -322,7 +322,7 @@ JungleBus → Transaction Stream → Validation → Database
 ### Data Flow
 1. **JungleBus**: Streams bsocial `type=like` transactions
 2. **GorillaPool API**: Fetches output details for validation
-3. **Validation Engine**: Checks LLM-21 protocol compliance
+3. **Validation Engine**: Checks LRC-20 protocol compliance
 4. **Supabase**: Stores validated mint data
 5. **Progress Tracking**: Monitors block processing and reorgs
 
